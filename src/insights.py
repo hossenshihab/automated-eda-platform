@@ -9,7 +9,7 @@ import pandas as pd
 import numpy as np
 
 
-class InsightGenerator:
+class DatasetInsights:
 
     def __init__(self, dataframe: pd.DataFrame):
         self.df = dataframe.copy()

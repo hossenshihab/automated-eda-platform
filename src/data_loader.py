@@ -9,32 +9,48 @@ import pandas as pd
 SUPPORTED_EXTENSIONS = {".csv", ".xlsx", ".xls"}
 
 
-def load_dataset(file_path: str | Path) -> pd.DataFrame:
+def load_dataset(file) -> pd.DataFrame:
     """
     Load a CSV or Excel dataset.
 
     Parameters
     ----------
-    file_path : str | Path
-        Path to the dataset.
+    file : str | Path | UploadedFile
+        Path to a dataset or Streamlit uploaded file.
 
     Returns
     -------
     pandas.DataFrame
-        Loaded dataset.
     """
 
-    file_path = Path(file_path)
+    # Streamlit uploaded file
+    if hasattr(file, "name"):
+
+        extension = Path(file.name).suffix.lower()
+
+        if extension not in SUPPORTED_EXTENSIONS:
+            raise ValueError(
+                f"Unsupported file type: {extension}"
+            )
+
+        if extension == ".csv":
+            return pd.read_csv(file)
+
+        return pd.read_excel(file)
+
+    # Local file path
+    file_path = Path(file)
 
     if not file_path.exists():
-        raise FileNotFoundError(f"{file_path} does not exist.")
+        raise FileNotFoundError(
+            f"{file_path} does not exist."
+        )
 
     extension = file_path.suffix.lower()
 
     if extension not in SUPPORTED_EXTENSIONS:
         raise ValueError(
-            f"Unsupported file type: {extension}. "
-            f"Supported formats: {SUPPORTED_EXTENSIONS}"
+            f"Unsupported file type: {extension}"
         )
 
     if extension == ".csv":

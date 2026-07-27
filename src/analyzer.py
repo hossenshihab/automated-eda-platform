@@ -79,3 +79,23 @@ class DatasetAnalyzer:
         return self.df.corr(
             numeric_only=True
         )
+
+    def dataset_summary(self):
+        """
+        Return overall dataset information.
+        """
+
+        return {
+            "Rows": self.df.shape[0],
+            "Columns": self.df.shape[1],
+            "Memory Usage (MB)": round(
+                self.df.memory_usage(deep=True).sum() / 1024**2,
+                2,
+            ),
+            "Numeric Columns": self.df.select_dtypes(
+                include="number"
+            ).shape[1],
+            "Categorical Columns": self.df.select_dtypes(
+                exclude="number"
+            ).shape[1],
+        }
