@@ -175,13 +175,21 @@ numeric_columns = df.select_dtypes(
     include="number"
 ).columns.tolist()
 
+categorical_columns = df.select_dtypes(exclude="number").columns.tolist()
+
 plot_type = st.selectbox(
-    "Select Plot Type",
+    "Select Visualization",
     [
         "Histogram",
+        "Distribution Plot",
         "Box Plot",
+        "Violin Plot",
         "Scatter Plot",
+        "Line Plot",
+        "Bar Chart",
+        "Pie Chart",
         "Correlation Heatmap",
+        "Missing Values Chart",
     ],
 )
 
@@ -213,3 +221,135 @@ elif plot_type == "Box Plot":
         use_container_width=True,
     )
 
+elif plot_type == "Scatter Plot":
+
+    col1, col2 = st.columns(2)
+
+    with col1:
+        x = st.selectbox(
+            "X Axis",
+            numeric_columns,
+        )
+
+    with col2:
+        y = st.selectbox(
+            "Y Axis",
+            numeric_columns,
+            index=1 if len(numeric_columns) > 1 else 0,
+        )
+
+    fig = visualizer.scatter_plot(
+        x,
+        y,
+    )
+
+    st.plotly_chart(
+        fig,
+        use_container_width=True,
+    )
+
+elif plot_type == "Distribution Plot":
+
+    column = st.selectbox(
+        "Column",
+        numeric_columns,
+    )
+
+    fig = visualizer.distribution_plot(column)
+
+    st.plotly_chart(
+        fig,
+        use_container_width=True,
+    )
+
+elif plot_type == "Violin Plot":
+
+    column = st.selectbox(
+        "Column",
+        numeric_columns,
+    )
+
+    fig = visualizer.violin_plot(column)
+
+    st.plotly_chart(
+        fig,
+        use_container_width=True,
+    )
+
+elif plot_type == "Line Plot":
+
+    default_index = 0
+
+    if "DateTime" in df.columns:
+        default_index = df.columns.get_loc("DateTime")
+
+    col1, col2 = st.columns(2)
+
+    with col1:
+        x = st.selectbox(
+            "X Axis",
+            df.columns.tolist(),
+            index=default_index,
+        )
+
+    with col2:
+        y = st.selectbox(
+            "Y Axis",
+            numeric_columns,
+        )
+
+    fig = visualizer.line_plot(
+        x,
+        y,
+    )
+
+    st.plotly_chart(
+        fig,
+        use_container_width=True,
+    )
+
+elif plot_type == "Bar Chart":
+
+    column = st.selectbox(
+        "Column",
+        df.columns.tolist(),
+    )
+
+    fig = visualizer.bar_chart(column)
+
+    st.plotly_chart(
+        fig,
+        use_container_width=True,
+    )
+
+elif plot_type == "Pie Chart":
+
+    column = st.selectbox(
+        "Column",
+        df.columns.tolist(),
+    )
+
+    fig = visualizer.pie_chart(column)
+
+    st.plotly_chart(
+        fig,
+        use_container_width=True,
+    )
+
+elif plot_type == "Correlation Heatmap":
+
+    fig = visualizer.correlation_heatmap()
+
+    st.plotly_chart(
+        fig,
+        use_container_width=True,
+    )
+
+elif plot_type == "Missing Values Chart":
+
+    fig = visualizer.missing_values_chart()
+
+    st.plotly_chart(
+        fig,
+        use_container_width=True,
+    )
