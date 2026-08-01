@@ -353,3 +353,98 @@ elif plot_type == "Missing Values Chart":
         fig,
         use_container_width=True,
     )
+
+st.divider()
+
+st.header("🧹 Data Cleaning Dashboard")
+
+clean_option = st.selectbox(
+    "Select Cleaning Operation",
+    [
+        "Fill Missing (Mean)",
+        "Fill Missing (Median)",
+        "Fill Missing (Mode)",
+        "Drop Missing Rows",
+        "Remove Duplicates",
+        "Encode Categorical",
+        "Standard Scaling",
+        "Min-Max Scaling",
+        "Drop Columns",
+    ],
+)
+
+selected_columns = []
+
+if clean_option == "Drop Columns":
+    selected_columns = st.multiselect(
+        "Select Columns",
+        df.columns.tolist(),
+    )
+
+# --------------------------------------------------
+# Initialize session state
+# --------------------------------------------------
+
+if "cleaned_df" not in st.session_state:
+    st.session_state.cleaned_df = None
+
+# --------------------------------------------------
+# Apply cleaning
+# --------------------------------------------------
+
+if st.button("Apply Cleaning"):
+
+    # Always start from the original uploaded dataset
+    cleaner = DataCleaner(df)
+
+    if clean_option == "Fill Missing (Mean)":
+        cleaner.fill_missing_mean()
+
+    elif clean_option == "Fill Missing (Median)":
+        cleaner.fill_missing_median()
+
+    elif clean_option == "Fill Missing (Mode)":
+        cleaner.fill_missing_mode()
+
+    elif clean_option == "Drop Missing Rows":
+        cleaner.drop_missing()
+
+    elif clean_option == "Remove Duplicates":
+        cleaner.remove_duplicates()
+
+    elif clean_option == "Encode Categorical":
+        cleaner.encode_categorical()
+
+    elif clean_option == "Standard Scaling":
+        cleaner.standardize_numeric()
+
+    elif clean_option == "Min-Max Scaling":
+        cleaner.minmax_scale()
+
+    elif clean_option == "Drop Columns":
+        cleaner.drop_columns(selected_columns)
+
+    # Save cleaned dataframe in session state
+    st.session_state.cleaned_df = cleaner.get_clean_data()
+
+# --------------------------------------------------
+# Show cleaned dataset (if available)
+# --------------------------------------------------
+
+if st.session_state.cleaned_df is not None:
+
+    st.success("Cleaning completed successfully!")
+
+    st.subheader("Cleaned Dataset Preview")
+
+    st.dataframe(
+        st.session_state.cleaned_df,
+        width="stretch",
+    )
+
+    st.download_button(
+        label="⬇ Download Cleaned CSV",
+        data=st.session_state.cleaned_df.to_csv(index=False),
+        file_name="cleaned_dataset.csv",
+        mime="text/csv",
+    )
