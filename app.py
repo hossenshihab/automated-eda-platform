@@ -473,4 +473,94 @@ elif page == "AI Insights":
 
     st.header("🧠 AI Dataset Insights")
 
-    st.info("AI Insights dashboard will be added in the next phase.")
+    report = insights.generate_report()
+
+    overall = report["Overall Recommendation"]
+
+    col1, col2 = st.columns(2)
+
+    with col1:
+        st.metric(
+            "Readiness Score",
+            overall["Readiness Score"],
+        )
+
+    with col2:
+        st.metric(
+            "Dataset Status",
+            overall["Status"],
+        )
+
+    st.divider()
+
+    st.subheader("✅ Overall Recommendations")
+
+    for recommendation in overall["Recommendations"]:
+        st.success(recommendation)
+
+        st.subheader("🟡 Missing Value Insights")
+
+    missing = report["Missing Value Insights"]
+
+    if len(missing) == 0:
+        st.success("No missing values detected.")
+
+    else:
+
+        for item in missing:
+
+            st.warning(f"""
+         **{item['Column']}**
+
+         Missing Values: **{item['Missing Count']}**
+
+         Missing Percentage: **{item['Missing (%)']}%**
+
+         Recommendation:
+
+         {item['Recommendation']}
+         """)
+
+    st.subheader("🔵 Duplicate Rows")
+
+    duplicate = report["Duplicate Insights"]
+
+    st.info(f"""
+    Duplicate Rows: **{duplicate['Duplicate Rows']}**
+
+    Recommendation: **{duplicate['Recommendation']}**
+    """)
+
+    st.subheader("🔴 Outlier Detection")
+
+    outliers = report["Outlier Insights"]
+
+    outlier_df = pd.DataFrame(outliers)
+
+    outlier_df = outlier_df[
+    outlier_df["Outliers"] > 0
+    ]
+
+    if outlier_df.empty:
+
+        st.success(
+            "No significant outliers detected."
+        )
+
+    else:
+
+        st.dataframe(
+            outlier_df,
+            width="stretch",
+        )
+
+
+    st.subheader("🟣 Correlation Insights")
+
+    correlation = report["Correlation Insights"]
+
+    for item in correlation:
+
+        st.info(
+            item["Recommendation"]
+        )
