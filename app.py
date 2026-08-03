@@ -49,6 +49,8 @@ page = st.sidebar.radio(
 # Load dataframe
 df = load_dataset(uploaded_file)
 
+st.caption(f"📄 Dataset Shape: {df.shape[0]:,} rows × {df.shape[1]} columns")
+
 profiler = DatasetProfiler(df)
 analyzer = DatasetAnalyzer(df)
 insights = DatasetInsights(df)
@@ -128,6 +130,15 @@ elif page == "Analysis":
 
     st.header("Dataset Analysis")
 
+    tab1, tab2, tab3, tab4 = st.tabs(
+        [
+            "📊 Numeric",
+            "📝 Categorical",
+            "❗ Missing",
+            "🔗 Correlation",
+        ]
+    )
+
     summary = analyzer.dataset_summary()
 
     col1, col2, col3 = st.columns(3)
@@ -150,46 +161,51 @@ elif page == "Analysis":
             summary["Categorical Columns"],
         )
 
-    st.subheader("Numerical Summary")
-
-    st.dataframe(
-        analyzer.numeric_summary(),
-        width="stretch",
-    )
-
-    categorical = analyzer.categorical_summary()
-
-    if not categorical.empty:
-        st.subheader("Categorical Summary")
+    with tab1:
+        st.subheader("Numeric Columns Summary")
 
         st.dataframe(
-            categorical,
+            analyzer.numeric_summary(),
             width="stretch",
         )
 
-    missing = analyzer.missing_summary()
+    with tab2:
+        categorical = analyzer.categorical_summary()
 
-    if not missing.empty:
-        st.subheader("Missing Value Summary")
+        if not categorical.empty:
 
+            st.subheader("Categorical Summary")
+
+            st.dataframe(
+                 categorical,
+                 width="stretch",
+            )
+
+    with tab3:
+        missing = analyzer.missing_summary()
+        
+        if not missing.empty:
+            st.subheader("Missing Value Summary")
+        
+            st.dataframe(
+                missing,
+                width="stretch",
+            )
+        
+            st.subheader("Duplicate Summary")
+        
+            st.dataframe(
+                analyzer.duplicate_summary(),
+                width="stretch",
+            )
+
+    with tab4:
+        st.subheader("Correlation Matrix")
+        
         st.dataframe(
-            missing,
+            analyzer.correlation_matrix(),
             width="stretch",
         )
-
-    st.subheader("Duplicate Summary")
-
-    st.dataframe(
-        analyzer.duplicate_summary(),
-        width="stretch",
-    )
-
-    st.subheader("Correlation Matrix")
-
-    st.dataframe(
-        analyzer.correlation_matrix(),
-        width="stretch",
-    )
 
 elif page == "Visualization":
     st.divider()
@@ -493,7 +509,7 @@ elif page == "AI Insights":
 
     st.divider()
 
-    st.subheader("✅ Overall Recommendations")
+    st.subheader("Overall Recommendations")
 
     for recommendation in overall["Recommendations"]:
         st.success(recommendation)
@@ -554,7 +570,6 @@ elif page == "AI Insights":
             width="stretch",
         )
 
-
     st.subheader("🟣 Correlation Insights")
 
     correlation = report["Correlation Insights"]
@@ -564,3 +579,18 @@ elif page == "AI Insights":
         st.info(
             item["Recommendation"]
         )
+
+st.divider()
+
+st.markdown(
+    """
+    <div style='text-align:center; color:gray;'>
+
+    Built with ❤️ using Streamlit
+
+    © 2026 Shihab Hossen
+
+    </div>
+    """,
+    unsafe_allow_html=True,
+)
